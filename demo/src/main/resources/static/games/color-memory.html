@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Color Memory Game | Fun Playground</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="games.css" />
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-content">
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="header-spacer"></div>
+  <div class="emoji-spinner-shell">
+    <nav aria-label="breadcrumb" id="breadcrumb">
+      <a href="../index.html">Home</a> <span aria-hidden="true">›</span> Color Memory
+    </nav>
+    <div class="game-container modern-card">
+      <div class="game-meta" style="justify-content: center;">
+        <span class="game-tag">Mini-project</span>
+      </div>
+      <h1 class="emoji-title">Color Memory Game</h1>
+      <p class="emoji-desc" style="margin-bottom:24px;">
+        Repeat the sequence by clicking the colored buttons. Each round adds a new color. How far can your memory go?
+      </p>
+      <div class="color-memory-content" style="display:flex;flex-direction:column;align-items:center;gap:9px;width:100%;">
+        <div id="color-tiles">
+          <button class="color-tile red"   data-color="red"   aria-label="Red"></button>
+          <button class="color-tile blue"  data-color="blue"  aria-label="Blue"></button>
+          <button class="color-tile green" data-color="green" aria-label="Green"></button>
+          <button class="color-tile yellow"data-color="yellow"aria-label="Yellow"></button>
+        </div>
+        <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:7px;">
+          <button id="start-btn" class="emoji-btn" type="button" aria-label="Start game">Start Game</button>
+          <span id="memory-status" style="margin-top:3px;min-height:1.3em;font-size:1.08rem;font-weight:600;color:#b0413e;display:block;"></span>
+          <div id="memory-level" class="spin-count" style="margin-top:3px;font-weight:700;"></div>
+        </div>
+      </div>
+      <div id="more-games" style="margin-top:36px;text-align:center;">
+        <span style="font-weight:600;color:#a57e16;">Try another mini-game:</span>
+        <div class="more-games-list-compact" style="margin-top:12px;">
+          <a href="emoji-spinner.html" class="game-link-card compact" title="Emoji Spinner">
+            <span role="img" aria-label="Emoji Spinner">🧩</span> Emoji Spinner
+          </a>
+          <a href="rock-paper-scissors.html" class="game-link-card compact" title="Rock Paper Scissors">
+            <span role="img" aria-label="Rock Paper Scissors">✊✋✌️</span> Rock Paper Scissors
+          </a>
+        </div>
+      </div>
+      <details class="how-i-built" style="margin-top:24px;">
+        <summary>How I built this</summary>
+        <div style="margin-top: 10px; color: #5e4529; font-size: 0.98rem; line-height: 1.4;">
+          Pure vanilla JS. Every sequence, flash animation, and state update is mine.<br>
+          Focused on concise event-driven logic and interactive UI.
+        </div>
+      </details>
+    </div>
+  </div>
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-content">
+      <span>© 2025 Harshitha Mortha — Guidewire Certified (PolicyCenter, Integration)</span>
+      <span class="footer-links">
+        <p>Connect with me:
+          <a href="mailto:harshithamortha@gmail.com">Email</a> |
+          <a href="https://www.linkedin.com/in/harshitha-mortha/" target="_blank">LinkedIn</a> |
+          <a href="https://github.com/harshithamortha" target="_blank">GitHub</a>
+        </p>
+      </span>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const tiles = Array.from(document.querySelectorAll('.color-tile'));
+      const startBtn = document.getElementById('start-btn');
+      const memoryStatus = document.getElementById('memory-status');
+      const memoryLevel = document.getElementById('memory-level');
+      const colors = ['red', 'blue', 'green', 'yellow'];
+      let sequence = [], userIndex = 0, level = 1, playing = false;
+
+      function nextSequence() {
+        sequence.push(colors[Math.floor(Math.random() * 4)]);
+        showSequence();
+        memoryStatus.textContent = "Level: " + level;
+      }
+      function showSequence() {
+        let i = 0;
+        playing = false;
+        tiles.forEach(tile => tile.disabled = true);
+        function flash() {
+          if (i >= sequence.length) {
+            playing = true;
+            tiles.forEach(tile => tile.disabled = false);
+            userIndex = 0;
+            return;
+          }
+          const color = sequence[i++];
+          const tile = tiles.find(btn => btn.dataset.color === color);
+          tile.classList.add('flash');
+          setTimeout(() => tile.classList.remove('flash'), 350);
+          setTimeout(flash, 420);
+        }
+        flash();
+      }
+      function resetGame() {
+        sequence = [];
+        userIndex = 0;
+        level = 1;
+        memoryLevel.textContent = "";
+        memoryStatus.textContent = "Click Start Game to play!";
+        tiles.forEach(tile => tile.disabled = false);
+        startBtn.style.display = ""; 
+      }
+      startBtn.onclick = function () {
+        resetGame();
+        startBtn.style.display = "none"; 
+        nextSequence();
+        memoryLevel.textContent = "Level: " + level;
+      };
+      tiles.forEach((tile) => {
+        tile.onclick = function () {
+          if (!playing) return;
+          const color = tile.dataset.color;
+          if (color === sequence[userIndex]) {
+            userIndex++;
+            if (userIndex === sequence.length) {
+              level++;
+              memoryLevel.textContent = "Level: " + level;
+              setTimeout(nextSequence, 650);
+            }
+          } else {
+            memoryStatus.textContent = "Wrong! Game Over at Level " + level + ".";
+            tiles.forEach(tile => tile.disabled = true);
+            playing = false;
+            startBtn.style.display = ""; 
+          }
+        };
+      });
+      resetGame();
+    });
+  </script>
+</body>
+</html>

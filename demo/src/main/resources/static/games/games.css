@@ -1,0 +1,560 @@
+/* === 1. LAYOUT & BACKGROUND === */
+body {
+  background: radial-gradient(circle at 50% 30%, #fbeee6 0%, #e5e8ef 100%);
+}
+
+.emoji-spinner-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 90vh;
+  justify-content: flex-start;
+  padding-top: 4vh;
+  position: relative;
+  /* enables SVG bg-blob positioning */
+}
+
+.game-container.modern-card {
+  background: #fff;
+  max-width: 480px;
+  min-width: 320px;
+  margin: 3vh auto 0 auto;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.09);
+  padding: 38px 32px 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 88vh;
+  z-index: 1;
+}
+
+.bg-blob {
+  position: absolute;
+  top: 22vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(0.7px);
+}
+
+/* === 2. NAVIGATION & BREADCRUMB === */
+#breadcrumb {
+  font-size: 1.04rem;
+  margin-bottom: 20px;
+  color: #c0392b;
+  font-weight: 600;
+  opacity: 0.88;
+  letter-spacing: 0.01em;
+}
+
+/* === 3. GAME HEADER & META === */
+.game-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.4em;
+  font-size: 0.98rem;
+  opacity: 0.7;
+}
+
+.game-tag {
+  background: #f7dc6f;
+  color: #b0413e;
+  padding: 2px 10px 2px 9px;
+  border-radius: 7px;
+  font-weight: 700;
+  margin-right: 12px;
+  font-size: 0.97rem;
+  letter-spacing: 0.03em;
+}
+
+.repo-link {
+  color: #229954;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 7px;
+}
+
+.emoji-title {
+  font-size: 2.2rem;
+  margin-bottom: 3px;
+  color: #b0413e;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.emoji-desc {
+  font-size: 1.13rem;
+  color: #444;
+  margin-bottom: 26px;
+  opacity: 0.94;
+  font-weight: 500;
+}
+
+/* === 4. COLOR MEMORY GAME === */
+.color-memory-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+  gap: 11px;
+}
+
+#color-tiles {
+  display: flex;
+  gap: 13px;
+  margin-bottom: 9px;
+}
+
+.color-tile {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 7px;
+  margin: 0 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  outline: none;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.color-tile.red {
+  background: #e74c3c;
+}
+
+.color-tile.green {
+  background: #229954;
+}
+
+.color-tile.blue {
+  background: #2e86c1;
+}
+
+.color-tile.yellow {
+  background: #f7dc6f;
+}
+
+.color-tile.flash {
+  transform: scale(1.22);
+  box-shadow: 0 0 14px 2px #3332;
+}
+
+.color-tile:hover:not(:disabled),
+.color-tile:focus-visible:not(:disabled) {
+  transform: scale(1.13);
+  box-shadow: 0 0 0 4px #d5d8dc, 0 2px 8px #8883;
+  outline: none;
+  z-index: 2;
+}
+
+.color-tile:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 2px #b3b6b7, 0 2px 8px #aaa4;
+}
+
+#memory-status {
+  margin-left: 10px;
+  font-weight: 600;
+  font-size: 1.01rem;
+}
+
+.spin-count {
+  font-size: 1.13rem;
+  color: #7c4700;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+/* === 5. EMOJI SPINNER GAME === */
+.emoji-area {
+  margin: 24px 0 14px 0;
+}
+
+.emoji-area-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.emoji-big {
+  font-size: 4rem;
+  margin-bottom: 18px;
+  display: block;
+  transition: transform 0.22s cubic-bezier(.36, .07, .19, .97);
+  user-select: none;
+}
+
+.emoji-bounce {
+  animation: emoji-bounce 0.53s cubic-bezier(.36, .07, .19, .97);
+}
+
+@keyframes emoji-bounce {
+  0% {
+    transform: scale(1.07);
+  }
+
+  30% {
+    transform: scale(1.45);
+  }
+
+  60% {
+    transform: scale(1.18);
+  }
+
+  85% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1.07);
+  }
+}
+
+.emoji-history {
+  margin: 6px 0 0 0;
+  min-height: 2.2em;
+  font-size: 1.03rem;
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.emoji-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 13px 0 7px 0;
+  min-height: 2.2em;
+  font-size: 1.09rem;
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.emoji-history-emoji {
+  font-size: 2.05rem;
+  background: #f7dc6f;
+  border-radius: 11px;
+  padding: 3px 9px 1px 9px;
+  margin: 0 2px;
+  box-shadow: 0 2px 8px #f7dc6f33;
+}
+
+.emoji-btn {
+  padding: 11px 30px;
+  background: #c0392b;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.19rem;
+  cursor: pointer;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.06);
+  transition: background 0.18s, transform 0.13s;
+}
+
+.emoji-btn:hover,
+.emoji-btn:focus {
+  background: #e74c3c;
+  outline: none;
+  transform: scale(1.05);
+}
+
+.copy-btn-modern {
+  background: #229954;
+  margin-top: 7px;
+}
+
+.copy-btn-modern.copied {
+  background: #229954;
+  color: #fff;
+  box-shadow: 0 0 0 2px #d4efdf, 0 2px 10px rgba(34, 153, 84, 0.11);
+  font-weight: 700;
+}
+
+.spin-message {
+  font-size: 1.11rem;
+  font-weight: 500;
+  color: #222;
+  margin-bottom: 7px;
+}
+
+.spin-count-label {
+  font-weight: 500;
+  color: #a07e4d;
+}
+
+.spin-count-value {
+  font-weight: 700;
+  color: #b0413e;
+  font-size: 1.18rem;
+}
+
+/* === 6. ROCK PAPER SCISSORS GAME === */
+.rps-area {
+  margin: 18px 0 9px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+}
+
+.rps-buttons {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 7px;
+}
+
+.rps-btn {
+  font-size: 1.12rem;
+  padding: 10px 22px;
+  background: #eee;
+  color: #c0392b;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.06);
+  transition: background 0.16s, color 0.16s;
+}
+
+.rps-btn:hover:enabled {
+  background: #e74c3c;
+  color: #fff;
+}
+
+#rps-scoreboard {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+#rps-result {
+  font-size: 1.09rem;
+  min-height: 2.1em;
+  text-align: center;
+  margin-top: 6px;
+}
+
+.rps-btn {
+  font-size: 1.12rem;
+  padding: 10px 22px;
+  background: #eee;
+  color: #c0392b;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.06);
+  transition: background 0.16s, color 0.16s, transform 0.13s, box-shadow 0.13s;
+}
+
+.rps-btn:hover:enabled,
+.rps-btn:focus:enabled {
+  background: #f7dc6f;
+  color: #229954;
+  outline: none;
+  transform: scale(1.08);
+  box-shadow: 0 2px 14px 0 #22995433;
+}
+
+.rps-btn:active:enabled {
+  background: #c0392b;
+  color: #fff;
+  transform: scale(0.97);
+  box-shadow: 0 1px 5px #c0392b22;
+}
+
+
+
+/* === 7. CARD NAV & ACTIONS === */
+.card-actions-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  background: #f9f7f2;
+  border-radius: 12px;
+  padding: 15px 0 7px 0;
+  margin-top: 38px;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(160, 152, 122, 0.07);
+}
+
+.game-link-card {
+  background: #f4f8fb;
+  border-radius: 11px;
+  padding: 8px 18px;
+  font-size: 1.06rem;
+  font-weight: 600;
+  color: #b0413e;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 153, 84, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: background 0.15s, color 0.14s, box-shadow 0.14s;
+  border: 1px solid #eaecee;
+}
+
+.game-link-card:hover,
+.game-link-card:focus {
+  background: #f7dc6f;
+  color: #229954;
+  box-shadow: 0 2px 10px #b0413e22;
+  outline: none;
+}
+
+.back-card {
+  background: #fff7f7;
+  color: #c0392b;
+  border: 1px solid #fae1e1;
+}
+
+.back-card:hover,
+.back-card:focus {
+  background: #fae1e1;
+  color: #922823;
+}
+
+.game-link-card span[role="img"] {
+  font-size: 1.22em;
+  margin-right: 3px;
+}
+
+/* === 8. BACK LINK === */
+.back-link {
+  display: inline-block;
+  margin-top: 25px;
+  color: #c0392b;
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: color 0.13s;
+}
+
+.back-link:hover {
+  color: #e74c3c;
+}
+
+
+
+.playground-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 34px;
+  margin-top: 24px;
+  margin-bottom: 28px;
+}
+
+.playground-nav a {
+  color: #b0413e;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: #f9f7f2;
+  padding: 8px 17px;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
+}
+
+.playground-nav a:hover,
+.playground-nav a:focus {
+  background: #f7dc6f;
+  color: #229954;
+  outline: none;
+}
+
+.more-games-list-compact {
+  display: flex;
+  gap: 13px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.game-link-card.compact {
+  background: #f4f8fb;
+  border-radius: 11px;
+  padding: 7px 14px;
+  font-size: 1.01rem;
+  font-weight: 600;
+  color: #b0413e;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(34, 153, 84, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #eaecee;
+  transition: background 0.13s, color 0.13s, box-shadow 0.13s;
+}
+
+.game-link-card.compact:hover,
+.game-link-card.compact:focus {
+  background: #f7dc6f;
+  color: #229954;
+  box-shadow: 0 2px 10px #b0413e22;
+  outline: none;
+}
+
+.how-i-built summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #a57e16;
+  font-size: 1.04rem;
+  margin-bottom: 7px;
+}
+
+.how-i-built[open] summary {
+  color: #b0413e;
+}
+
+.how-i-built {
+  border: none;
+  background: transparent;
+}
+
+.result-moves {
+  font-size: 1.04rem;
+  color: #776b5c;
+  font-weight: 500;
+  margin-bottom: 3px;
+  display: block;
+}
+
+.result-win {
+  color: #229954;
+  font-size: 1.13rem;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.result-lose {
+  color: #c0392b;
+  font-size: 1.13rem;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.result-draw {
+  color: #888;
+  font-size: 1.13rem;
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.final-win {
+  color: #229954;
+  font-size: 1.21rem;
+  font-weight: 900;
+}
+
+.final-lose {
+  color: #c0392b;
+  font-size: 1.17rem;
+  font-weight: 900;
+}

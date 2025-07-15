@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XML to JSON Converter – Insurance Integration (Guidewire, P&C)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-content">
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header-spacer"></div>
+  <div class="container">
+    <header>
+      <h1>XML to JSON Converter — Insurance & Guidewire Context</h1>
+      <p class="project-description">Paste your PolicyCenter/insurance XML and convert to JSON for integration and
+        debugging.</p>
+    </header>
+
+    <nav aria-label="breadcrumb" id="breadcrumb">
+      <a href="index.html">Home</a> &gt; XML to JSON Converter
+    </nav>
+
+    <div id="builderBadge" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;"></div>
+
+    <section id="xml-section">
+      <h2>Convert XML to JSON</h2>
+      <div class="tech-stack-badges">
+        <span>HTML5</span>
+        <span>JavaScript</span>
+        <span>DOMParser</span>
+        <span>Client-only</span>
+      </div>
+
+      <form id="xml-form">
+        <label for="inputXml">Input XML:</label><br />
+        <textarea id="inputXml" name="inputXml" rows="10" required></textarea><br />
+        <button type="submit">Transform to JSON</button>
+      </form>
+
+      <button
+        onclick="inputXml.value = '<employee id=&quot;123&quot;><name>Harshitha</name><role>PolicyCenter Integration Specialist</role></employee>'">Try
+        Sample XML</button>
+
+      <h3>JSON Output:</h3>
+      <pre id="outputXml" tabindex="0" aria-live="polite"
+        style="background:#fff; padding:12px; border-radius:8px; box-shadow: 0 2px 6px rgba(192, 57, 43, 0.1);"></pre>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('outputXml').textContent)">Copy
+        Output</button>
+      <button onclick="saveJsonToFile()">Save as JSON File</button>
+
+      <div id="message" role="alert" aria-live="polite"></div>
+    </section>
+
+    <section class="use-case-card"
+      style="margin-top:32px; background:#fff8f7; padding:18px 24px; border-left:4px solid #c0392b; border-radius:8px; font-size:0.96rem; color:#555; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+      <h4 style="color:#c0392b; font-size:1.1rem; margin-bottom:8px;">Why I built this</h4>
+      <p>After working on insurance system XML (State Farm, PolicyCenter integrations), I needed a tool to convert and
+        debug XML faster. This helps devs turn complex insurance XML into clean JSON for quick analysis.</p>
+    </section>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-content">
+      <span>© 2025 Harshitha Mortha — Guidewire Certified (PolicyCenter, Integration) • Tempe, AZ</span>
+      <span class="footer-links">
+        <p>Connect with me:
+          <a href="mailto:harshithamortha@gmail.com">Email</a> |
+          <a href="https://www.linkedin.com/in/harshitha-mortha/" target="_blank">LinkedIn</a> |
+          <a href="https://github.com/harshithamortha" target="_blank">GitHub</a>
+        </p>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    const form = document.getElementById('xml-form');
+    const inputXml = document.getElementById('inputXml');
+    const outputXml = document.getElementById('outputXml');
+    const messageDiv = document.getElementById('message');
+
+    function showMessage(text, isError = false) {
+      messageDiv.textContent = text;
+      messageDiv.style.color = isError ? 'red' : 'green';
+      setTimeout(() => {
+        messageDiv.textContent = '';
+      }, 4000);
+    }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const xml = inputXml.value.trim();
+      if (!xml) {
+        showMessage('Please enter XML data to transform.', true);
+        inputXml.style.borderColor = 'red';
+        setTimeout(() => inputXml.style.borderColor = '#ddd', 2000);
+        return;
+      }
+
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xml, "text/xml");
+
+        if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+          throw new Error("Invalid XML format");
+        }
+
+        function nodeToObj(node) {
+          let obj = {};
+          if (node.attributes && node.attributes.length > 0) {
+            for (let attr of node.attributes) {
+              obj[`@${attr.name}`] = attr.value;
+            }
+          }
+
+          const children = Array.from(node.children);
+          if (children.length > 0) {
+            for (let child of children) {
+              const name = child.nodeName;
+              const value = nodeToObj(child);
+
+              if (obj[name]) {
+                if (!Array.isArray(obj[name])) {
+                  obj[name] = [obj[name]];
+                }
+                obj[name].push(value);
+              } else {
+                obj[name] = value;
+              }
+            }
+          } else {
+            obj = node.textContent.trim();
+          }
+
+          return obj;
+        }
+
+        const root = xmlDoc.documentElement;
+        const jsonResult = {};
+        jsonResult[root.nodeName] = nodeToObj(root);
+
+        outputXml.textContent = JSON.stringify(jsonResult, null, 2);
+        showMessage('Transformation to JSON successful.');
+        outputXml.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        showMessage(err.message, true);
+        outputXml.textContent = '';
+      }
+    });
+
+
+    function saveJsonToFile() {
+      const json = outputXml.textContent;
+      if (!json.trim()) {
+        showMessage('No JSON to save.', true);
+        return;
+      }
+
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'converted.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+
+</html>

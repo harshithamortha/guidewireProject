@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PolicyCenter REST API Integration – Guidewire, P&C Insurance</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-content">
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="header-spacer"></div>
+
+  <div class="container">
+    <header>
+      <h1>PolicyCenter REST API Integration</h1>
+      <p class="project-description">
+        Demonstrates core PolicyCenter policy lifecycle operations (create, update, cancel, renew) via REST APIs, reflecting real P&C insurance integration practices. Built with Spring Boot, Vanilla JS, and a secure mock backend.
+        </p>
+      <div class="tech-stack-badges">
+        <span>Spring Boot 3</span>
+        <span>Java 17</span>
+        <span>REST API</span>
+        <span>HTML5</span>
+        <span>CSS3</span>
+        <span>Vanilla JS</span>
+      </div>
+
+      <div class="project-actions">
+        <a href="/swagger-ui.html" class="api-docs-btn" target="_blank" rel="noopener">View API Docs</a>
+        <a href="https://github.com/yourusername/your-repo" class="github-btn" target="_blank" rel="noopener">View on
+          GitHub</a>
+      </div>
+
+    </header>
+
+
+    <nav aria-label="breadcrumb" id="breadcrumb">
+      <a href="index.html">Home</a> &gt; PolicyCenter REST API Integration
+    </nav>
+
+    <section id="policy-section">
+      <h2>Policies</h2>
+      <div id="message" role="alert" aria-live="polite"></div>
+      <table id="policy-table">
+        <thead>
+          <tr>
+            <th>Policy Number</th>
+            <th>Insured Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>Add New Policy</h3>
+      <form id="add-policy-form">
+        <label>
+          Policy Number:
+          <input type="text" id="policyNumber" name="policyNumber" required pattern="PC-\d{4}"
+            title="Format: PC- followed by 4 digits" placeholder="PC-1234" />
+        </label><br />
+        <label>
+          Insured Name:
+          <input type="text" id="insuredName" name="insuredName" required placeholder="e.g. Alice Johnson" />
+        </label><br />
+        <label>
+          Status:
+          <select id="status" name="status" required>
+            <option value="">Select status</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="CANCELLED">CANCELLED</option>
+            <option value="RENEWED">RENEWED</option>
+          </select>
+        </label><br />
+        <button type="submit">Add Policy</button>
+      </form>
+    </section>
+  </div>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-content">
+      <span>© 2025 Harshitha — All rights reserved. Built for fun, fueled by curiosity.</span>
+      <span class="footer-links">
+        <p>Connect with me:
+          <a href="mailto:harshithamortha@gmail.com">Email</a> |
+          <a href="https://www.linkedin.com/in/harshitha-mortha/" target="_blank">LinkedIn</a> |
+          <a href="https://github.com/harshithamortha" target="_blank">GitHub</a>
+        </p>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+   const apiBase = '/api/policies';
+const tbody = document.querySelector('#policy-table tbody');
+const form = document.getElementById('add-policy-form');
+const messageDiv = document.getElementById('message');
+
+const statusOptions = ['ACTIVE', 'CANCELLED', 'RENEWED'];
+let allPolicies = [];
+
+function showMessage(message, isError = false) {
+  messageDiv.textContent = message;
+  messageDiv.style.color = isError ? 'red' : 'green';
+}
+
+function createRow(policy) {
+  const tr = document.createElement('tr');
+  const tdNumber = document.createElement('td');
+  tdNumber.textContent = policy.policyNumber;
+  tr.appendChild(tdNumber);
+
+  const tdName = document.createElement('td');
+  const inputName = document.createElement('input');
+  inputName.value = policy.insuredName;
+  inputName.placeholder = "e.g. Alice Johnson";
+  inputName.required = true;
+  tdName.appendChild(inputName);
+  tr.appendChild(tdName);
+
+  const tdStatus = document.createElement('td');
+  const selectStatus = document.createElement('select');
+  selectStatus.required = true;
+  statusOptions.forEach(opt => {
+    const option = document.createElement('option');
+    option.value = opt;
+    option.textContent = opt;
+    if (policy.status && policy.status.toUpperCase() === opt) option.selected = true;
+    selectStatus.appendChild(option);
+  });
+  tdStatus.appendChild(selectStatus);
+  tr.appendChild(tdStatus);
+
+  const tdActions = document.createElement('td');
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = 'Save';
+  saveBtn.onclick = async () => {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    const updatedPolicy = {
+      policyNumber: policy.policyNumber,
+      insuredName: inputName.value.trim(),
+      status: selectStatus.value,
+    };
+    if (!updatedPolicy.insuredName) {
+      showMessage('Please fill all required fields.', true);
+      inputName.style.border = '2px solid red';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+      return;
+    } else {
+      inputName.style.border = '2px solid green';
+    }
+    try {
+      const res = await fetch(`${apiBase}/${policy.policyNumber}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPolicy),
+      });
+      if (!res.ok) {
+        let errorMessage = 'Update failed';
+        try {
+          const json = await res.json();
+          errorMessage = json.message || json.error || 'Update failed';
+        } catch {
+          errorMessage = await res.text();
+        }
+        throw new Error(errorMessage);
+      }
+      showMessage('Policy updated successfully');
+      loadPolicies();
+    } catch (err) {
+      showMessage(err.message, true);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    }
+  };
+  tdActions.appendChild(saveBtn);
+
+  const delBtn = document.createElement('button');
+  delBtn.textContent = 'Delete';
+  delBtn.onclick = async () => {
+    if (!confirm(`Delete policy ${policy.policyNumber}?`)) return;
+    delBtn.disabled = true;
+    delBtn.textContent = 'Deleting...';
+    try {
+      const res = await fetch(`${apiBase}/${policy.policyNumber}`, { method: 'DELETE' });
+      if (!res.ok) {
+        let errorMessage = 'Delete failed';
+        try {
+          const json = await res.json();
+          errorMessage = json.message || json.error || 'Delete failed';
+        } catch {
+          errorMessage = await res.text();
+        }
+        throw new Error(errorMessage);
+      }
+      showMessage('Policy deleted successfully');
+      loadPolicies();
+    } catch (err) {
+      showMessage(err.message, true);
+    } finally {
+      delBtn.disabled = false;
+      delBtn.textContent = 'Delete';
+    }
+  };
+  tdActions.appendChild(delBtn);
+
+  tr.appendChild(tdActions);
+  return tr;
+}
+
+function renderPolicies(policies) {
+  tbody.innerHTML = '';
+  if (policies.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.style.color = 'gray';
+    td.textContent = 'No policies available';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+  policies.forEach(policy => tbody.appendChild(createRow(policy)));
+}
+
+async function fetchPolicies() {
+  const response = await fetch(apiBase);
+  if (!response.ok) {
+    throw new Error('Failed to fetch policies');
+  }
+  return await response.json();
+}
+
+async function loadPolicies() {
+  try {
+    showMessage('Loading policies...');
+    allPolicies = await fetchPolicies();
+    renderPolicies(allPolicies);
+    showMessage('Policies loaded.');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" style="color:red;">${err.message}</td></tr>`;
+    showMessage('Failed to load policies.', true);
+  }
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const newPolicy = {
+    policyNumber: form.policyNumber.value.trim(),
+    insuredName: form.insuredName.value.trim(),
+    status: document.getElementById('status').value.trim(),
+  };
+
+  let valid = true;
+
+  if (!newPolicy.policyNumber || !/^PC-\d{4}$/.test(newPolicy.policyNumber)) {
+    form.policyNumber.style.border = '2px solid red';
+    showMessage('Policy Number must be in format: PC-1234', true);
+    valid = false;
+  } else {
+    form.policyNumber.style.border = '2px solid green';
+  }
+
+  if (!newPolicy.insuredName) {
+    form.insuredName.style.border = '2px solid red';
+    showMessage('Insured Name is required.', true);
+    valid = false;
+  } else {
+    form.insuredName.style.border = '2px solid green';
+  }
+
+  if (!newPolicy.status) {
+    form.status.style.border = '2px solid red';
+    showMessage('Please select a Status.', true);
+    valid = false;
+  } else {
+    form.status.style.border = '2px solid green';
+  }
+
+  if (!valid) return;
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Adding...';
+
+  try {
+    const res = await fetch(apiBase, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newPolicy),
+    });
+
+    if (!res.ok) {
+      let errorMessage = 'Failed to add policy';
+      try {
+        const json = await res.json();
+        errorMessage = json.message || json.error || 'Failed to add policy';
+      } catch {
+        errorMessage = await res.text();
+      }
+      throw new Error(errorMessage);
+    }
+
+    showMessage('Policy added successfully');
+    form.reset();
+    ['policyNumber', 'insuredName', 'status'].forEach(id => {
+      document.getElementById(id).style.border = '1px solid #ccc';
+    });
+    loadPolicies();
+  } catch (err) {
+    showMessage(err.message, true);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Add Policy';
+  }
+});
+
+window.onload = loadPolicies;
+ 
+  </script>
+</body>
+
+</html>

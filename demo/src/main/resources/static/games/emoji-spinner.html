@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emoji Spinner | Fun Playground</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="games.css" />
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-content">
+      <nav aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../projects.html">Projects</a></li>
+          <li><a href="../blog.html">Blog</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="header-spacer"></div>
+  <div class="emoji-spinner-shell">
+    <nav aria-label="breadcrumb" id="breadcrumb">
+      <a href="../index.html">Home</a> <span aria-hidden="true">›</span> Emoji Spinner
+    </nav>
+    <div class="game-container modern-card">
+      <div class="game-meta" style="justify-content: center;">
+        <span class="game-tag">Mini-project</span>
+      </div>
+      <h1 class="emoji-title">Emoji Spinner</h1>
+      <p class="emoji-desc" style="margin-bottom:24px;">
+        Click spin and see your luck!
+      </p>
+      <div class="emoji-area-modern">
+        <div id="emoji-display" class="emoji-big" aria-live="polite">🎯</div>
+        <button id="spin-btn" class="emoji-btn" type="button" aria-label="Spin the emoji">Spin</button>
+        <button id="copy-btn" class="emoji-btn copy-btn-modern" type="button" aria-label="Copy emoji result">Copy Result</button>
+        <div id="spin-message" class="spin-message"></div>
+        <div id="spin-count" class="spin-count"></div>
+        <div id="emoji-history" class="emoji-history-row"></div>
+      </div>
+      <div id="more-games" style="margin-top:36px;text-align:center;">
+        <span style="font-weight: 600; color: #a57e16;">Try another mini-game:</span>
+        <div class="more-games-list-compact" style="margin-top:12px;">
+          <a href="color-memory.html" class="game-link-card compact" title="Color Memory">
+            <span role="img" aria-label="Color Memory">🟦🟥🟩🟨</span> Color Memory
+          </a>
+          <a href="rock-paper-scissors.html" class="game-link-card compact" title="Rock Paper Scissors">
+            <span role="img" aria-label="Rock Paper Scissors">✊✋✌️</span> Rock Paper Scissors
+          </a>
+        </div>
+      </div>
+      <details class="how-i-built" style="margin-top:24px;">
+        <summary>How I built this</summary>
+        <div style="margin-top: 10px; color: #5e4529; font-size: 0.98rem; line-height: 1.4;">
+          Pure JS, no frameworks. Focused on random animation, event handling, and history state.<br>
+          UI, interaction, and clipboard logic are decoupled for clarity.
+        </div>
+      </details>
+    </div>
+  </div>
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-content">
+      <span>© 2025 Harshitha Mortha — Guidewire Certified (PolicyCenter, Integration)</span>
+      <span class="footer-links">
+        <p>Connect with me:
+          <a href="mailto:harshithamortha@gmail.com">Email</a> |
+          <a href="https://www.linkedin.com/in/harshitha-mortha/" target="_blank">LinkedIn</a> |
+          <a href="https://github.com/harshithamortha" target="_blank">GitHub</a>
+        </p>
+      </span>
+    </div>
+  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const emojis = [
+        "🎯", "😊", "🔥", "💡", "🏆", "🚀", "😂", "🌟", "💻", "🧠", "💪", "📚",
+        "🧩", "🎉", "🥇", "⚡", "🔑", "🎮", "🕹️", "🛡️", "🔒"
+      ];
+      const emojiDisplay = document.getElementById('emoji-display');
+      const spinBtn = document.getElementById('spin-btn');
+      const spinMessage = document.getElementById('spin-message');
+      const emojiHistoryDiv = document.getElementById('emoji-history');
+      const spinCountDiv = document.getElementById('spin-count');
+      const copyBtn = document.getElementById('copy-btn');
+      let spinCount = 0;
+      let history = [];
+
+      spinBtn.onclick = function() {
+        spinBtn.disabled = true;
+        let spins = 12 + Math.floor(Math.random() * 8);
+        let idx = 0;
+
+        function spin() {
+          emojiDisplay.textContent = emojis[idx % emojis.length];
+          emojiDisplay.classList.add("emoji-bounce");
+          setTimeout(() => emojiDisplay.classList.remove("emoji-bounce"), 280);
+          if (spins-- > 0) {
+            idx++;
+            setTimeout(spin, 70 + spins * 2);
+          } else {
+            const finalEmoji = emojis[idx % emojis.length];
+            emojiDisplay.textContent = finalEmoji;
+            emojiDisplay.classList.add("emoji-bounce");
+            setTimeout(() => emojiDisplay.classList.remove("emoji-bounce"), 450);
+            spinMessage.textContent = "You landed on: " + finalEmoji;
+            spinBtn.disabled = false;
+
+            spinCount++;
+            spinCountDiv.innerHTML = `<span class="spin-count-label">Total spins:</span> <span class="spin-count-value">${spinCount}</span>`;
+            history.unshift(finalEmoji);
+            if (history.length > 5) history = history.slice(0,5);
+            emojiHistoryDiv.innerHTML = 'Your recent luck: ' +
+              history.map(e => `<span class="emoji-history-emoji">${e}</span>`).join(' ');
+          }
+        }
+        spin();
+      };
+
+      copyBtn.onclick = function() {
+        const emoji = emojiDisplay.textContent;
+        const text = "Emoji Spinner result: " + emoji;
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.classList.add('copied');
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtn.textContent = "Copy Result";
+          }, 1000);
+        });
+      };
+    });
+  </script>
+</body>
+</html>
